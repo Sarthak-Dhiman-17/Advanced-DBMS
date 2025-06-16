@@ -1,0 +1,810 @@
+- When using GROUP BY we need to specify only that column which is used with GROUP BY such as select City from Empl Group By City;
+
+R(A1,A2, ------, An)
+find super keys given that A1+A2 is candidate key
+
+ER Diagram : 
+4 rules for er diagram whether for total or partial relation
+Many to many : separate table for entites as well for relation
+1. Many to one : combine the entities with many side
+1. one to many : same as many to one
+one to many : combine the entities any of the side
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PROCEDURES : 
+
+-#TWO PARAMETERS INPUT(BY DEFAULT) OUTPUT (OUT)
+CREATE PROCEDURE SP_STORING_ID
+@ID INT 
+AS 
+BEGIN
+	SELECT * FROM TABLE
+	WERE EMPID = @ID
+END
+
+-EXEC / EXECUTE SP_STORING_ID 7
+
+-SP_HELPTEXT SP_STORING_ID (TO GET QUERY WRITTEN WHICH IS A FLOW AS WELL TO COUNTER IT WE WILL USE WITH ENCRYPTION ABOVE AS AND BELOW @ID) 
+
+-QUES 1 : PRINT ID AND NAME NOT FOUND USING PROCEDURE 
+-QUES 2 : YOUR SP WILL TAKE ONE PARAMETER - GENDER
+	  BASED UPON GENDER - TOTAL_EMP_COUNT
+	  MALE - 7
+	  FEMALE - 10
+
+
+- NEXT CLASS FUNCTION AND TRIGGERS
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+*Triggers : 
+===========
+
+
+create trigger tr_for_employees
+on Employee
+BEFORE INSERT 
+AS
+BEGIN
+	PRINT 'MY Employee table has been altered'
+END
+
+
+
+*MAGIC TABLES : 
+--------------
+
+Print the current inserted rows
+track te current inserted/deleted/updated rows in table
+
+
+	1. INSERTED MAGIC Table : when inserted instead of inserting into table it goes to magic table.
+	2. DELETED MAGIC Table;
+
+
+create trigger tr_for_employees
+on Employee
+AFTER INSERT 
+AS
+BEGIN
+	Select*fromm INSERTED;
+END
+ -here when we test the trigger then we will get msg 1 row affected two times and then row will be printed
+
+
+*IMPORTANT : 
+------------
+
+TASK 1 : Lets say you have employee table(emp_id,emp_name,salary,designation) , create a emp_backup (SNO(AUTO_INCREMENET),MESSAGE);
+	 
+	 EMPLOYEE ID : 2 has been added at current_time & date
+
+
+TASK 2 : 1. Customers(C_ID) 2. ORDER(CUST_ID)
+	 2. PERFORM the inner join by creating a view
+	 3. try to perform the a. insert into the view
+			       b. update from the view
+			       c. delete from the view
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+TRANSACTIONS:
+-------------
+
+
+#THESE TRANS ARE IMPLICIT, IN NEW QUERY WINDOW, QUERY WILL NOT COMPLETE 
+BEGIN TRANSACTION
+	UPDATE TBL_STUDENTS
+	SET NAME = 'AMAN'
+	WHERE ID=1;
+
+
+WE HAVE TO COMMIT THE TRANS ie COMMIT TRANSACTION\
+IMP - NEVER WRITE COMMIT FIRST, PUT IT IN LAST BECAUSE WE CANNOT ROLLBACK TRANS IF WE HAVE COMMITED THE TRANSACTION
+
+
+- *SAVEPOINTS : CREATES A CHECHPOINT
+  -------------
+EXP - IN STUDENTS TABLE, PLACE 3 RECORDS IN TRANS, INSTEAD OF INT FILL IN VARCAR, TIS WILL IMPLEMENT ATOMICITY SCENARIO
+
+EXCEPTION HANDLING:
+
+	BEGIN TRY
+
+	END TRY
+
+	BEGIN CATCH
+
+	END CATCH
+
+EXAMPLE : 
+BEGIN TRY
+	BEGIN TRANSACTION
+		INSERT INTO TBL_STUDENTS VALUES(7,'ABHISHEK',13,6)
+		INSERT INTO TBL_STUDENTS VALUES(8,'SARTHAK',"17",9)
+		INSERT INTO TBL_STUDENTS VALUES(9,'PARTH',15,6)
+		
+		
+		COMMIT TRANSACTION
+		PRINT 'TRANSACTION SUCCESSFUL'
+END TRY
+
+BEGIN CATCH
+	ROLLBACK TRANSACTION
+	PRINT 'TRANSACTION ABORTED'
+END CATCH
+
+NEXT CLASS - CURSOR
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+T1   T2   T3
+R(X)       
+          R(Z)
+	  W(Z)
+     R(Y)
+R(Y)
+     W(Y)
+          W(X)
+     W(X)
+W(X)
+
+check if the given schedule is conflict serializable? if yes then give the serial schedule for it
+
+ans : serialization is if you are given with non seriablizable schedule, make equivalent to serial schedule then it is also serial in nature, 
+keep note of two things : 
+conflicting operations 
+
+we will make a graph edge for thosee transactions that are conflicting like R(X) in t1 to W(X) in t3 , this means that t1 should be executed first then t3, when graph is formed
+there will be a node without any edge, that will be first transaction and there will be a node where all edges are connected, that will be last transaction
+
+
+t1 - t3
+t3 - t2
+t3 - t1 (cycle forms, if cycle is found, then we will say schedule is non conflict seriablizable, else conflict serializable)
+
+So in case of conflict serializable , we cannot write its serial schedule, it is not possible
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Student(ID, Marks1, Marks2)
+         1, 10    , 50
+TASK : Swap values of Marks1 and marks2 
+
+
+ANS : 
+
+Update StudentID
+set Marks1 = Marks2,
+    Marks2 = Marks1
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+EMPLOYEE(ID, Name, Salary)
+
+update the salary of employee with the highest salary
+NOTE : NOT TO USE WHERE CLAUSE
+
+
+ANS : 
+
+
+update StudentID
+set Marks1 = (Select max(Marks1) from StudentID)
+
+select * from StudentID
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+(SUMMER WINNING CAMP 2025)
+CASE in sql 
+------------
+
+======================================
+select * from table 
+order by case 
+	when condition then result
+	when condition then result
+	else result
+end
+======================================
+
+the above query will not create a new column and not show a new column when processing the output
+to create a new column manual one in output use following query:
+
+=======================================
+select *,
+case 
+	when condition then result
+	else result
+end as manual_column_name
+from table_name
+=======================================
+
+eg: 
+select Rankings, Country from tbl_happiness
+order by CASE
+	WHEN Country = 'India' THEN 0
+	WHEN Country = 'Sri Lanka' THEN 1
+	ELSE 2
+END, Rankings DESC
+(to 
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+FINDING THIRD HIGHEST SALARY WITHOUT USING WINDOW FUNCTION
+=============================================
+select MAX(Emp_Salary) from employee_SWC
+where Emp_Salary < ( 
+select MAX(Emp_Salary) from employee_SWC
+where Emp_Salary < (
+select MAX(Emp_Salary) from employee_SWC))
+=============================================
+
+=============================================
+-- another method
+select Emp_Salary from employee_SWC1
+group by Emp_Salary
+order by Emp_Salary desc
+offset 2 rows
+fetch next 1 row only
+=============================================
+above is for finding third highest salary in table for distinct and even for duplicate values.
+
+OFFSET defines the number of rows you want to skip so we use offset 2 rows
+FETCH NEXT defines the number of rows you want after the skipped rows.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+FINDING NUMBER OF FRIENDS FROM TWO COLUMNS
+
+table is given below
+INSERT INTO Friends1 (p1_id, p2_id) VALUES
+(1, 2),
+(1, 3),
+(2, 3),
+(3, 4);
+
+===================================================================================
+-- first approach
+with cte as(select p1_id as person from Friends1
+union all
+select p2_id from Friends1)
+select top 1 person, count(*) as num from cte group by person order by num desc
+===================================================================================
+
+===================================================================================
+-- second approach subquery
+select top 1 person, count(*) as num from(
+	select p1_id as person from Friends1
+	union all
+	select p2_id from Friends1
+)as temp
+group by person order by num desc
+===================================================================================
+
+both the above approaches merges the two columns into one using UNION ALL operator, then store the resultant table in temporary table using
+CTE or subquery then use grouping and ordering to find the one with max number of friends.
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--write a query that the sum of all tiv values for 2016 for all placeholder is : 
+--1. who have same tiv_2015 value as at least one or more than other person and 
+--2. are not located in the same city as any other policy holder and lat = long
+
+INSERT INTO insurance (pid, tiv_2015, tiv_2016, lat, lon)
+VALUES 
+(1, 10, 5, 10, 10),
+(2, 20, 20, 20, 20),
+(3, 10, 30, 20, 20),
+(4, 10, 40, 40, 40),
+(5, 30, 15, 25, 25),
+(6, 30, 5, 35, 35);
+
+this is the above table and query for this will be : 
+
+==========================================
+select sum(tiv_2016) from insurance 
+where tiv_2015 in
+(select tiv_2015 from insurance 
+group by tiv_2015 having count(*)>1)
+and lat in
+(select lat from insurance 
+group by lat having count(*) = 1)
+===========================================
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+FINDING DOMAINS FROM EMAIL
+
+INSERT INTO Employees (EMP_ID, EMAIL)
+VALUES 
+(1, 'AMAN@GMAIL.COM'),
+(2, 'SHREYA@OUTLOOK.COM'),
+(3, 'PIYUSH@HOTMAIL.COM');
+
+the above is the table provided , find domains only, we will use substring function along with CHARINDEX function to find the index of @ character from EMAIL 
+section then use SUBSTRING to find the domain 
+SUBSTRING(COLUMN, START INDEX, NO OF CHARS YOU WANT), and CHARINDEX("SYMBOL",COLUMN)
+
+======================================================
+select SUBSTRING(EMAIL, charindex('@',EMAIL) + 1,
+LEN(EMAIL)-charindex('@',EMAIL)) as Domain from Employees
+======================================================
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--COURT HAS GRANTED BAIL TO THOSE WHO HAVE COMMITED CRIME ONCE IN 2016 and 2017
+
+-- Create Thief_1_2016 table
+CREATE TABLE Thief_1_2016 (
+    id INT PRIMARY KEY,
+    name VARCHAR(50)
+);
+-- Insert data into Thief_1_2016
+INSERT INTO Thief_1_2016 (id, name) VALUES
+(1, 'Sumit'),
+(2, 'Nisha'),
+(3, 'Akash');
+
+-- Create Thief_2_2017 table
+CREATE TABLE Thief_2_2017 (
+    id INT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+-- Insert data into Thief_2_2017
+INSERT INTO Thief_2_2017 (id, name) VALUES
+(2, 'Nisha'),
+(4, 'Charlie');
+
+these two are above table and to solve this we have to use following approach : 
+
+--APPROACH 1:
+==========================================================================================================================
+select id,name from Thief_1_2016 where not exists (select 1 from Thief_2_2017 where Thief_1_2016.id = Thief_2_2017.id)
+union all
+select id,name from Thief_2_2017 where not exists (select 1 from Thief_1_2016 where Thief_1_2016.id = Thief_2_2017.id)
+===========================================================================================================================
+
+
+--approach 2 :
+======================================================================================
+select id,name from T bklhief_1_2016 where id not in (select id from Thief_2_2017)
+UNION ALL 
+select id, name from Thief_2_2017 where id not in (select id from Thief_1_2016)
+======================================================================================
+
+
+--approach 3
+=============================================================
+with cte1 as (
+	select id, name from Thief_1_2016
+	where id not in(select id from Thief_2_2017)
+), cte2 as (
+	select id, name from Thief_2_2017
+	where id not in (select id from Thief_1_2016
+))
+
+select * from cte1 
+union all
+select * from cte2
+==============================================================
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+FINDING HIGHEST RATING ACCORDING TO LEXICAL ORDER AND DATE
+
+table data and structure is as follows : 
+
+CREATE TABLE Movies (
+    movie_id INT PRIMARY KEY,
+    title VARCHAR(100)
+);
+
+-- Create Users Table
+CREATE TABLE Users (
+    user_id INT PRIMARY KEY,
+    name VARCHAR(100)
+);
+CREATE TABLE MovieRating (
+    movie_id INT,
+    user_id INT,
+    rating INT,
+    created_at DATE,
+    FOREIGN KEY (movie_id) REFERENCES Movies(movie_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+);
+
+
+INSERT INTO Movies (movie_id, title)
+VALUES
+(1, 'Avengers'),
+(2, 'Frozen 2'),
+(3, 'Joker');
+
+-- Insert data into Users table
+INSERT INTO Users (user_id, name)
+VALUES
+(1, 'Daniel'),
+(2, 'Monica'),
+(3, 'Maria'),
+(4, 'James');
+
+
+INSERT INTO MovieRating (movie_id, user_id, rating, created_at)
+VALUES 
+(1, 1, 3, '2020-01-12'),
+(1, 2, 4, '2020-02-11'),
+(1, 3, 2, '2020-02-12'),
+(1, 4, 1, '2020-01-01'),
+(2, 1, 5, '2020-02-17'),
+(2, 2, 2, '2020-02-01'),
+(2, 3, 2, '2020-03-01'),
+(3, 1, 3, '2020-02-22'),
+(3, 2, 4, '2020-02-25');
+
+============================================================================================================
+ --2nd approach
+with cte as (select top 1 u.name as results from Users u INNER JOIN MovieRating m on u.user_id = m.user_id
+group by u.name
+order by count(*) desc,
+u.name),
+============================================================================================================
+--find movie with highest average rating
+cte1 as ( select top 1  m1.title from Movies m1 INNER JOIN MovieRating m2 on m1.movie_id = m2.movie_id
+where FORMAT(m2.created_at,'yyyy-MM') = '2020-02'
+group by m1.title
+order by AVG(m2.rating*1.00) desc,
+m1.title)
+=============================================================================================================
+in above query, we use FORMAT() function to deal with only month and year leaving date then choose the feb 2020 data
+then we combine both table output using cte and union all( we cannot use union all without cte because we cannot use order by before union as it takes order by for whole table)
+
+=======================
+select *  from cte 
+union all 
+select * from cte1
+=======================
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+--FINDING THE HIGHEST SALARY FROM EACH DEPARTMENT
+
+-- Department Table
+CREATE TABLE Department (
+    ID INT PRIMARY KEY,
+    DEPT_NAME VARCHAR(50)
+);
+
+-- Employee Table
+CREATE TABLE Employee187 (
+    ID INT,
+    NAME VARCHAR(50),
+    SALARY INT,
+    DEPT_ID INT,
+    FOREIGN KEY (DEPT_ID) REFERENCES Department(ID)
+);
+-- I
+-- Insert into Department table
+INSERT INTO Department (ID, DEPT_NAME) VALUES
+(1, 'IT'),
+(2, 'SALES');
+
+
+-- Insert into Employee table
+INSERT INTO Employee187 (ID, NAME, SALARY, DEPT_ID) VALUES
+(1, 'JOE', 70000, 1),
+(2, 'JIM', 90000, 1),
+(3, 'HENRY', 80000, 2),
+(4, 'SAM', 60000, 2),
+(5, 'MAX', 90000, 1); 
+
+to solve this we will use correlated subquery where inner query will be dependent on outer query like : 
+
+=========================================================================
+select d.DEPT_NAME, e.SALARY as Max_Salary from Department d INNER JOIN Employee187 e on d.ID = e.DEPT_ID
+where e.SALARY = (
+select MAX(SALARY) from Employee187 e2
+where e2.DEPT_ID = e.DEPT_ID)
+==========================================================================
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+FIND FRACTION OF PLAYERS LOGGED IN FOR CONSECUTIVE DAYS
+
+CREATE TABLE Activity (
+    player_id INT,
+    device_id INT,
+    event_date DATE,
+    games_played INT
+);
+
+INSERT INTO Activity (player_id, device_id, event_date, games_played) VALUES
+(1, 2, '2016-03-01', 5),
+(1, 2, '2016-03-02', 6),
+(2, 3, '2017-06-25', 1),
+(3, 1, '2016-03-02', 0),
+(3, 4, '2018-07-03', 5);
+
+
+
+--higher date is written at last in date diff function
+--here we use subquery and count*1.00 to get the decimal value then use cast
+function to decimal with total 5 digits and upto 2 places after decimal
+
+=============================================================================== 
+select CAST(COUNT(*)*1.00/(Select Count(Distinct player_id) from Activity) as decimal(5,2)) as fraction from Activity a1 join Activity a2 
+on a1.player_id=a2.player_id where DATEDIFF(day,a1.event_date,a2.event_date)=1;
+================================================================================
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ALLOCATING GROUPS TO STUDENT HAVING GROUP RATING MORE THAN 4
+
+CREATE TABLE Student (
+    ID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Age INT
+);
+
+INSERT INTO Student (ID, Name, Age) VALUES (1, 'Alice', 20);
+INSERT INTO Student (ID, Name, Age) VALUES (2, 'Bob', 22);
+INSERT INTO Student (ID, Name, Age) VALUES (3, 'Charlie', 21);
+INSERT INTO Student (ID, Name, Age) VALUES (4, 'Diana', 23);
+
+
+CREATE TABLE Groups (
+    GroupID INT PRIMARY KEY,
+    GroupName VARCHAR(100)
+);
+
+INSERT INTO Groups (GroupID, GroupName) VALUES (1, 'Group1');
+INSERT INTO Groups (GroupID, GroupName) VALUES (2, 'Group2');
+INSERT INTO Groups (GroupID, GroupName) VALUES (3, 'Group3');
+
+
+CREATE Table GROUP_RATING(
+
+GROUP_ID INT PRIMARY KEY,
+Group_Rating DECIMAL(2,1)
+FOREIGN KEY (GROUP_ID) REFERENCES GROUPS(GroupID)
+)
+
+INSERT INTO GROUP_RATING (Group_ID, Group_Rating) VALUES (1, 3.5);
+INSERT INTO GROUP_RATING (Group_ID, Group_Rating) VALUES (2, 4.0);
+INSERT INTO GROUP_RATING (Group_ID, Group_Rating) VALUES (3, 5.0);
+
+
+solution : 
+==========
+
+==============================================================================
+--we can also use cte here
+select Student.ID, Student.Name, temp.GroupName from Student CROSS JOIN 
+(select * from Groups g inner join GROUP_RATING g2 on g.GroupID=g2.GROUP_ID where g2.Group_Rating>=4) as temp
+===============================================================================
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+REPLACE DUPLICATE EMAILS 
+
+CREATE TABLE UserProfile (
+    user_ID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Age INT,
+    Email VARCHAR(100)
+);
+
+INSERT INTO UserProfile (user_ID, Name, Age, Email) VALUES
+(1, 'Rajesh', 28, 'rajesh@gmail.com'),
+(2, 'Priya', 25, 'priya@gmail.com'),
+(3, 'Suresh', 30, 'rajesh@gmail.com'),
+(4, 'Anjali', 24, 'priya@gmail.com');
+
+===========================================================
+update UserProfile
+set Email = 'duplicate email'
+where UserProfile.user_ID in(
+select u.user_ID from UserProfile as u
+join UserProfile as u2 on u.Email = u2.Email
+where u.user_ID <> u2.user_ID AND u.user_ID > u2.user_ID
+)
+
+select * from UserProfile
+============================================================
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+WINDOW FUNCTIONS IN SQL 
+=======================
+
+1. find last two joining from each department
+
+
+
+CREATE TABLE Employee1 (
+    ID INT,
+    NAME VARCHAR(50),
+    SALARY INT,
+    DEPT_NAME VARCHAR(20),
+    JOINING_DATE DATE
+);
+
+-- Insert records with random JOINING_DATE values
+INSERT INTO Employee1 VALUES (1, 'AKASH', 25000, 'IT', '2021-05-14');
+INSERT INTO Employee1 VALUES (2, 'VIKAS', 5000, 'SALES', '2022-08-01');
+INSERT INTO Employee1 VALUES (3, 'ANAY', 5000, 'IT', '2020-11-23');
+INSERT INTO Employee1 VALUES (4, 'ADITYA', 51000, 'SALES', '2023-03-10');
+INSERT INTO Employee1 VALUES (5, 'RAVI', 6000, 'IT', '2021-09-17');
+INSERT INTO Employee1 VALUES (6, 'ANUJ', 7000, 'SALES', '2020-07-05');
+INSERT INTO Employee1 VALUES (7, 'DEEP', 21000, 'IT', '2022-02-25');
+INSERT INTO Employee1 VALUES (8, 'NISHA', 52000, 'SALES', '2023-12-19');
+INSERT INTO Employee1 VALUES (9, 'KARAN', 18000, 'HR', '2022-06-08');
+INSERT INTO Employee1 VALUES (10, 'SNEHA', 35000, 'IT', '2023-01-12');
+INSERT INTO Employee1 VALUES (11, 'MOHIT', 27000, 'MARKETING', '2021-03-19');
+INSERT INTO Employee1 VALUES (12, 'RIYA', 40000, 'HR', '2020-10-28');
+INSERT INTO Employee1 VALUES (13, 'AMAN', 15000, 'MARKETING', '2022-11-05');
+
+
+================================================================================
+with cte as (
+select ID, NAME, SALARY, DEPT_NAME, 
+ROW_NUMBER() OVER(PARTITION BY DEPT_NAME ORDER BY JOINING_DATE desc) as temp
+from Employee1
+)
+select ID, NAME, SALARY, DEPT_NAME from cte where temp between 1 and 2
+================================================================================
+
+
+2. find total amount from day 1 to current day in each 
+
+
+-- Create the Sales table
+CREATE TABLE Sales (
+    customer_id INT,
+    name VARCHAR(50),
+    visited_on DATE,
+    amount INT
+);
+
+-- Insert data into Sales table
+INSERT INTO Sales (customer_id, name, visited_on, amount) VALUES
+(1, 'Jhon', '2019-01-01', 100),
+(2, 'Daniel', '2019-01-02', 110),
+(3, 'Jade', '2019-01-03', 120),
+(4, 'Khaled', '2019-01-04', 130),
+(5, 'Winston', '2019-01-05', 110),
+(6, 'Elvis', '2019-01-06', 140),
+(7, 'Anna', '2019-01-07', 150),
+(8, 'Maria', '2019-01-08', 80),
+(9, 'Jaze', '2019-01-09', 110);
+
+
+=============================================================================
+select * ,
+SUM(amount) OVER(ORDER BY visited_on ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as sum
+from Sales
+
+
+or 
+
+select * ,
+SUM(amount) OVER(ORDER BY visited_on) as sum
+from Sales
+
+this is because by default it takes unbounded preceding to current row
+==============================================================================
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+FiveQuestions on Windows function and LEAD LAG
+
+CREATE TABLE Orders (
+    ID INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Amount INT,
+    OrderDate DATETIME
+);
+INSERT INTO Orders (ID, Name, Amount, OrderDate) VALUES
+(1, 'SHALABH', 2200, '2025-04-24 00:26:46.190'), ---190 mili second 
+(2, 'SHALABH', 2400, '2025-04-24 00:27:04.760'),
+(3, 'SHALABH', 400,  '2025-04-24 00:27:38.850'),
+(4, 'AJAY',    200,  '2025-04-24 00:28:28.863'),
+(5, 'AJAY',    300,  '2025-04-24 00:28:28.873'),
+(6, 'AJAY',    400,  '2025-04-24 00:29:19.200'),
+(7, 'AJAY',   9900,  '2025-04-24 00:44:08.757');
+
+
+
+--previous and next row in 
+
+select * ,
+LAG(Amount,1,-1) OVER (ORDER BY OrderDate) as prev_order_amount,
+LEAD(Amount,1,-1) OVER (ORDER BY OrderDate) as next_order_amount
+from Orders
+
+--absolute difference between current and previous row
+
+select ID,Name, Amount, OrderDate,
+ABS(Amount - LAG(Amount,1,0) OVER (ORDER BY OrderDate)) as abs_diff
+from Orders
+
+--average of previous current and next row
+
+Select *,
+cast((Lead(Amount,1,0) OVER (ORDER BY OrderDate) + 
+Amount + Lag(Amount,1,0) OVER (ORDER BY OrderDate))*1.00/3 as decimal(10,2))
+from Orders
+
+--find first and last amount of each customer
+
+with cte as(
+select *,
+FIRST_VALUE(Amount) OVER(PARTITION BY Name Order by OrderDate) as FirstValue,
+LAST_VALUE(Amount) 
+OVER(PARTITION BY NAME ORDER BY OrderDate ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) as LastValue,
+row_number() over(partition by Name Order by OrderDate) as r
+from Orders)
+
+select * from cte where r=1;
+
+--find customer who made consecutive orders with increasing amount
+
+with cte as(select *,
+LAG(Amount,1,0) OVER(Partition by Name ORDER BY OrderDate) as prev_amount,
+LEAD(Amount,1,Amount+1) OVER(Partition by Name ORDER BY OrderDate ) as next_amount,
+row_number() OVER(Partition by Name order by OrderDate) as r
+from Orders),
+cte2 as(
+select *,
+CASE WHEN prev_amount<Amount AND next_amount>Amount THEN 'INCLUDE' ELSE 'NOT' END as status
+from cte )
+
+select Name from Orders where Name not in(Select Name from cte2 where status = 'NOT')
+group by Name
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+FIND AVERAGE OF LAST 7 DAYS WINDOW
+==================================
+
+CREATE TABLE CustomerVisits (
+    customer_id INT,
+    name VARCHAR(50),
+    visited_on DATE,
+    amount INT
+);
+
+INSERT INTO CustomerVisits (customer_id, name, visited_on, amount)
+VALUES 
+(1, 'Jhon', '2019-01-01', 100),
+(2, 'Daniel', '2019-01-02', 110),
+(3, 'Jade', '2019-01-03', 120),
+(4, 'Khaled', '2019-01-04', 130),
+(5, 'Winston', '2019-01-05', 110),
+(6, 'Elvis', '2019-01-06', 140),
+(7, 'Anna', '2019-01-07', 150),
+(8, 'Maria', '2019-01-08', 80),
+(9, 'Jaze', '2019-01-09', 110),
+(1, 'Jhon', '2019-01-10', 130),
+(3, 'Jade', '2019-01-10', 150);
+
+--find average amount from last 6 days only
+with cte as(
+select visited_on , SUM(amount) as total_amount
+from CustomerVisits
+group by visited_on)
+
+,cte2 as(
+select visited_on,
+sum(total_amount) OVER(ORDER BY visited_on rows between 6 preceding and current row) as amount,
+cast(avg(total_amount*1.00) OVER(ORDER BY visited_on rows between 6 preceding and current row) as decimal(10,2)) as average_amount,
+row_number() over(order by visited_on) as row_num
+from cte)
+
+select visited_on, amount, average_amount
+from cte2 
+where row_num>=7
+
+
+
+
