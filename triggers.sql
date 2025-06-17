@@ -1,0 +1,25 @@
+create table EMP(
+EMPID int PRIMARY KEY,
+EMPNAME varchar(50),
+SALARY float,
+DESIGNATION varchar);
+
+
+create table EMPBACKUP(
+SNO int IDENTITY(1, 1) PRIMARY KEY  ,
+MESSAGE varchar(100))
+
+
+create TRIGGER tr_Backup 
+on 
+EMP
+AFTER INSERT 
+AS 
+BEGIN
+	DECLARE @ID INT;
+	SELECT @ID = EMPID FROM INSERTED
+	insert into EMPBACKUP(concat('EMPID : ',(CAST(@ID) AS VARCHAR(MAX)),' HAS BEEN ADDED AT',(CAST(GETDATE()) AS VARCHAR(MAX)))
+END
+	
+
+	
