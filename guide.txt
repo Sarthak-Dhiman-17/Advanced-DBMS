@@ -861,4 +861,145 @@ order by id asc,Month desc                                                |
 ==========================================================================|
 
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+RECURSIVE CTE:
+==============
+
+sytax:
+
+(for MySQL, but for SQL server no need to use recursive keyword)
+with recursive cte_name as(
+	cte_query_def --non recursive,anchor,base
+	UNION ALL
+	recursive_query_def --recursive term
+)
+SELECT * FROM cte_name;
+
+
+eg. print number 1 to 100 using temp variable and recursive cte : 
+
+
+=================================================|
+with cte as(                                     |
+	select 1 as n  --for initialization      |
+	UNION ALL                                |
+	select n+1 as n from cte where n<100     |
+	--this query will be recursive 	         |
+)                                                |
+select * from cte                                |
+=================================================|
+
+
+eg2. print the date from 2023-01-01 to 2023-01-05 using recursive cte : 
+
+===========================================================
+with cte as(
+	select CAST('2023-01-01' as DATE) as start_date
+	UNION ALL
+	select DATEADD(day,1,start_date) from cte
+	where start_date<CAST('2023-01-05' as DATE)
+)
+select * from cte
+============================================================
+
+for MySQL you can use TO_DATE() function instead of cast function
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+LIKE OPERATOR or WILDCARD OPERATOR:
+===================================
+
+
+1. find name of person starting with v:
+
+select * from table
+where name like 'v%';
+
+2. find name starting with a and of length 5 
+
+select * from table
+where name like 'a_ _ _ _/';
+
+3. find names ending with a
+
+select * from table
+where name like '%a'
+
+
+CREATE TABLE Users1 (
+    User_id INT PRIMARY KEY,
+    Username VARCHAR(50)
+);
+
+INSERT INTO Users1 (User_id, Username) VALUES
+(1, '_admin'),
+(2, 'a_%user'),
+(3, 'admin_user'),
+(4, 'user_admin'),
+(5, '%manager'),
+(6, 'a%man'),
+(7, 'test_user'),
+(8, 'usertest');
+
+
+--find Username start with %
+select * from Users1
+where Username like '\%%' ESCAPE '\'
+
+select * from Users1
+where Username like '[%]%'
+
+--find username starts with _
+select * from Users1
+where Username like '\_%' ESCAPE '\'
+
+--find username containing % in between
+select * from Users1
+where Username like '%\%%' ESCAPE '\'
+
+--fund username with _ in between
+select * from Users1
+where Username like '%\_%' ESCAPE '\'
+
+--find username containing both % and _
+select * from Users1
+where Username like '%[%]%' AND Username like '%[_]%'
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+GROUPING SETS : 
+==============
+
+
+CREATE TABLE Student1 (
+    Name VARCHAR(50),
+    City VARCHAR(50),
+    Marks INT
+);
+
+INSERT INTO Student1 (Name, City, Marks) VALUES 
+('Alice', 'Mumbai', 85),
+('Alice', 'Mumbai', 90),
+('Alice', 'Pune', 75),
+('Bob', 'Delhi', 78),
+('Bob', 'Delhi', 82),
+('Bob', 'Kolkata', 88),
+('Charlie', 'Delhi', 70),
+('Charlie', 'Delhi', 60),
+('David', 'Pune', 80),
+('David', 'Pune', 85),
+('Eve', 'Mumbai', 91),
+('Eve', 'Pune', 89);
+
+
+select * from Student1
+
+select Name, City,Count(*) from Student1
+group by grouping sets((Name),(Name,City),(City),())
+
+
+
 
