@@ -1001,5 +1001,91 @@ select Name, City,Count(*) from Student1
 group by grouping sets((Name),(Name,City),(City),())
 
 
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+INDEXING : 
+==========
+is used to reduce the time to scan the table, if the table has huge number of records, then indexing can save a lot of time
+-By default PRIMARY KEY is an indexing, so searching using PK will be done in O(LogN) time instead of O(N)
+-Primary key is by default ordered by Ascending order, so even if you insert 2 before 1 in a table, when you show the table, then 1 will always be at top.
 
 
+--create a table employee for indexing
+create table Employee_index(
+user_id int PRIMARY KEY,
+name varchar(20));
+
+--inserting values such that 102 is first to be inserted
+insert into Employee_index values(102,'Aayush');
+insert into Employee_index values(101,'Sarthak');
+ 
+--after viewing the table, values will be sorted because PK is by default indexing
+select * from Employee_index
+
+--creating a clustered index on name, there can be two ways:
+CREATE INDEX Name_index on Employee_index(name);
+CREATE NONCLUSTERED INDEX Name_Index on Employee_index(name);
+
+--droping index;
+DROP INDEX INDEX_NAME
+
+
+--creating new table for UNIQUE INDEX demonstration
+create table Employee_index2(
+user_id int PRIMARY KEY,
+name varchar(20));
+
+insert into Employee_index2 values(102,'Aayush');
+insert into Employee_index2 values(101,'Sarthak');
+
+--creating unique index on name
+create UNIQUE INDEX name_unique on Employee_index2(name);
+--this will be terminated and not be inserted;
+insert into Employee_index2 values(103,'Sarthak');
+
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+PROCEDURES:
+===========
+
+throw an error if there exists same record with same name and joining date else insert the record;
+
+
+CREATE TABLE Employees_procedure (
+    emp_id INT IDENTITY(1,1) PRIMARY KEY,
+    emp_name VARCHAR(100),
+    salary DECIMAL(10,2),
+    joining_date DATE
+);
+
+INSERT INTO Employees_procedure (emp_name, salary, joining_date) VALUES
+('Alice', 50000.00, '2023-01-01'),
+('Bob', 60000.00, '2023-03-15');
+
+
+select * from Employees_procedure
+
+--creating a procedure to check if there exists a same name and joining date
+CREATE OR ALTER PROCEDURE pc_check
+	@name varchar(100), 
+	@salary DECIMAL(10,2),
+	@j_date DATE
+AS
+BEGIN
+		IF EXISTS(select 1 from Employees_procedure where emp_name = @name AND joining_date = @j_date)
+			BEGIN
+				--error starts from 50000 and then we pass message, then state which defines the location
+				THROW 50000, 'SAME NAME AND SALARY NOT ALLOWED',1;
+			END
+		ELSE
+			BEGIN
+				--if there is no record then insert into table
+				insert into Employees_procedure(emp_name,salary,joining_date) values(@name,@salary,@j_date);
+			END
+END
+
+--calling the procedure
+exec pc_check 'John' , 50000.00, '2023-01-01'
+
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
