@@ -1089,3 +1089,53 @@ END
 exec pc_check 'John' , 50000.00, '2023-01-01'
 
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+OUTPUT PARAMETER IN STORED PROCEDURE : 
+======================================
+
+you have to update the salary of that employee which will be taken as output and return the output using output parameter in stored procedure
+
+--we have to create a stored procedure to increase the salary and return using output parameter
+create or alter PROCEDURE increase_salary3 @emp_id int, @updated_salary decimal(10,2) OUTPUT
+AS
+BEGIN
+	--update salary in table by 10%
+	UPDATE Employees_procedure
+	set salary = salary+0.10*salary
+	where emp_id = @emp_id;
+
+	--updating value for output parameter
+	select @updated_salary = salary
+	from Employees_procedure where emp_id = @emp_id;
+END
+
+--calling the stored procedure for emp_id 1
+DECLARE @updated_salary decimal(10,2)
+EXEC increase_salary3 @emp_id = 1, @updated_salary = @updated_salary output
+PRINT @updated_salary
+
+select * from Employees_procedure
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+PAGINATION OF TABLE USING STORED PROCEDURES:
+============================================
+
+
+we have a table of 50 records, and we want to create pages of that table with two values page number and page size, eg if we give 1 page number and 10 page size then it should return first 10 rows of table. This can simply be done using offset and fetch next.
+
+
+for dataset refer to dataset word file Page number 29 question 3
+
+
+create or alter PROCEDURE pagination @page_num int, @page_size int
+as 
+begin
+	select * from CU_EMPLOYEES
+	order by id
+	OFFSET ((@page_num-1)*@page_size)  ROWS FETCH NEXT @page_size ROWS ONLY;
+end
+
+exec pagination 2,10
