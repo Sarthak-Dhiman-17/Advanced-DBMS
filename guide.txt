@@ -1211,4 +1211,103 @@ BEGIN CATCH
 END CATCH
 
 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE A PROCEDURE TO FIND THE NTH FIBONACCI NUMBER:
+===================================================
+
+
+--procedure for fibonacci nth number in sql server
+create or alter procedure fib2 @n int,@result int output
+as 
+begin
+	DECLARE @x int = 0,@y int = 1;
+	WHILE @n >0
+	BEGIN
+		DECLARE @curr int = @x+@y;
+		SET @x = @y;
+		SET @y = @curr;
+		SET @n = @n-1;
+	END
+	SET @result = @x
+end
+
+--calling the procedure
+DECLARE @result int
+exec fib2 10, @result output
+PRINT 'Number at 10 is : '+CAST(@result AS VARCHAR)
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE A PROCEDURE TO FIND THE FACTORIAL OF A NUMBER(USING RECURSION):
+======================================================================
+
+
+--factorial of a number using recursion
+create or alter procedure Fact @n int,@result int output
+as 
+begin
+	if @n<=1
+		set @result = 1;
+	ELSE
+	BEGIN
+		DECLARE @x int=@n-1
+		--here recursion occurs
+		EXEC Fact @x, @result OUTPUT
+		SET @result = @result*@n;
+	END
+end
+
+--calling the procedure
+DECLARE @result int 
+exec Fact 5,@result output
+PRINT @result
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+FUNCIONS:
+========
+
+Functions in sql returns some value, refer following ppt for more info:
+
+https://docs.google.com/presentation/d/1-Sm8w8U_0UVOH4MYK24Qi4aiI9ZiE-hz/edit?slide=id.g36b8cdec82a_3_1793#slide=id.g36b8cdec82a_3_1793
+
+
+QUES1. : Create a function to return the number of experience of employee
+
+
+CREATE TABLE Employees_fn (
+    EmpID INT PRIMARY KEY,
+    EmpName NVARCHAR(100),
+    DepartmentID INT,
+    Salary DECIMAL(10,2),
+    HireDate DATE,
+
+);
+
+INSERT INTO Employees_fn (EmpID, EmpName, DepartmentID, Salary, HireDate) VALUES
+(1, 'Chirag', 101, 75000, '2021-01-03'),
+(2, 'Satyam', 102, 68000, '2021-10-03');
+
+select * from Employees_fn
+
+--function to return the number of years of experience of employees
+create or alter function fn_exp(@id int)
+returns int
+as 
+begin
+	return (
+		select DATEDIFF(year,HireDate,GETDATE()) - 
+		CASE WHEN MONTH(HireDate)>MONTH(GETDATE()) OR MONTH(HireDate)=Month(GETDATE()) AND DAY(HireDate)>DAY(GETDATE())
+		THEN 1 ELSE 0
+		END
+		from Employees_fn where EmpID = @id)
+end
+
+--calling function using DBO.function name DBO is DATABASE ORAGANIZER
+select DBO.fn_exp(2) as Experience; 
+
 
