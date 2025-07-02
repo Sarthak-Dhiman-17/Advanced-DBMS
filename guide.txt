@@ -1271,7 +1271,7 @@ PRINT @result
 FUNCIONS:
 ========
 
-Functions in sql returns some value, refer following ppt for more info:
+Functions in sql returns some value unlike store procedures, refer following ppt for more info:
 
 https://docs.google.com/presentation/d/1-Sm8w8U_0UVOH4MYK24Qi4aiI9ZiE-hz/edit?slide=id.g36b8cdec82a_3_1793#slide=id.g36b8cdec82a_3_1793
 
